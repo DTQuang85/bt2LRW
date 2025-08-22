@@ -1,14 +1,15 @@
-# Dùng Tomcat 9 với JDK 11 (ổn định, hợp với Servlet API 4.0)
-FROM tomcat:9.0-jdk11
+# Stage 1: Build WAR bằng Maven
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Xóa các app mặc định của Tomcat (ROOT, docs, examples)
+# Stage 2: Deploy WAR vào Tomcat
+FROM tomcat:10.1-jdk17
+# Xóa app mặc định của Tomcat
 RUN rm -rf /usr/local/tomcat/webapps/*
+# Copy file WAR vừa build vào Tomcat, đổi tên thành ROOT.war để chạy trực tiếp ở "/"
+COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 
-# Copy file WAR đã build từ Maven vào Tomcat
-COPY target/*.war /usr/local/tomcat/webapps/ROOT.war
-
-# Mở cổng 8080
 EXPOSE 8080
-
-# Chạy Tomcat
 CMD ["catalina.sh", "run"]
