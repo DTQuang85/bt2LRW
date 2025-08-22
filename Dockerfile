@@ -1,7 +1,10 @@
-# Sử dụng Tomcat 9 làm base image
-FROM tomcat:9.0-jdk17
+# Dùng Tomcat 9 với JDK 11 (ổn định, hợp với Servlet API 4.0)
+FROM tomcat:9.0-jdk11
 
-# Copy file WAR (sau khi build bằng Maven) vào thư mục webapps của Tomcat
+# Xóa các app mặc định của Tomcat (ROOT, docs, examples)
+RUN rm -rf /usr/local/tomcat/webapps/*
+
+# Copy file WAR đã build từ Maven vào Tomcat
 COPY target/*.war /usr/local/tomcat/webapps/ROOT.war
 
 # Mở cổng 8080
